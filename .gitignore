@@ -1,2 +1,4 @@
 config.ini
 *.log
+*setup.bat
+yt-dlp*

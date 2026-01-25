@@ -417,9 +417,9 @@ if "!historyEnabled!"=="1" (
     echo !BLUE![1]!RESET! Histórico de downloads: !GRAY!Ativado!GRAY! / !RED!Desativado!RESET!
 )
 if "!limitHistory!"=="1" (
-    echo !BLUE![2]!RESET! Limitar a 10 últimos: !GREEN!Ativado!GRAY! / !GRAY!Desativado!RESET!
+    echo !BLUE![2]!RESET! Mostrar apenas 10 últimos: !GREEN!Ativado!GRAY! / !GRAY!Desativado!RESET!
 ) else if "!limitHistory!"=="0" (
-    echo !BLUE![2]!RESET! Limitar a 10 últimos: !GRAY!Ativado!GRAY! / !RED!Desativado!RESET!
+    echo !BLUE![2]!RESET! Mostrar apenas 10 últimos: !GRAY!Ativado!GRAY! / !RED!Desativado!RESET!
 )
 echo !BLUE![3]!RESET! Apagar histórico
 echo.
