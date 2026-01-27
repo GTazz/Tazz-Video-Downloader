@@ -4,12 +4,16 @@ setlocal enabledelayedexpansion
 
 set scriptDir=%~dp0
 
-set "logFile=%scriptDir%downloads.log"
-if not exist "%logFile%" (
-    break> "%logFile%"
+REM Define o diretório de dados no AppData
+set "appDataDir=%APPDATA%\TazzSoftwares\TazzVideoDownloader"
+powershell -Command "if(-not(Test-Path '!appDataDir!')) { New-Item -ItemType Directory -Path '!appDataDir!' -Force | Out-Null }"
+
+set "logFile=!appDataDir!\downloads.log"
+if not exist "!logFile!" (
+    break> "!logFile!"
 )
 
-set configFile=%scriptDir%config.ini
+set "configFile=!appDataDir!\config.ini"
 
 if exist "%configFile%" (
     call :readConfig
@@ -207,9 +211,9 @@ goto :eof
 
 del /f /q "%TEMP%\tazz_history.tmp" 2>nul
 if "!limitHistory!"=="1" (
-    powershell -NoProfile -Command "if(Test-Path '%logFile%'){$l=Get-Content '%logFile%' -Encoding UTF8;if($l){($l|select -Last 10|%%{$i++;\"$i@@$_\"})|Out-File -FilePath '%TEMP%\tazz_history.tmp' -Encoding UTF8}}"
+    powershell -NoProfile -Command "if(Test-Path '!logFile!'){$l=Get-Content '!logFile!' -Encoding UTF8;if($l){($l|select -Last 10|%%{$i++;\"$i@@$_\"})|Out-File -FilePath '%TEMP%\tazz_history.tmp' -Encoding UTF8}}"
 ) else (
-    powershell -NoProfile -Command "if(Test-Path '%logFile%'){$l=Get-Content '%logFile%' -Encoding UTF8;if($l){$l|%%{$i++;\"$i@@$_\"}|Out-File -FilePath '%TEMP%\tazz_history.tmp' -Encoding UTF8}}"
+    powershell -NoProfile -Command "if(Test-Path '!logFile!'){$l=Get-Content '!logFile!' -Encoding UTF8;if($l){$l|%%{$i++;\"$i@@$_\"}|Out-File -FilePath '%TEMP%\tazz_history.tmp' -Encoding UTF8}}"
 )
 if not exist "%TEMP%\tazz_history.tmp" goto historyEmpty
 for %%Z in ("%TEMP%\tazz_history.tmp") do if %%~zZ==0 goto historyEmpty
@@ -334,7 +338,7 @@ goto :eof
 
 :hist_delete
 set "lineToDelete=!chosen!"
-powershell -NoProfile -Command "$line='%lineToDelete%'.Replace(\"'\",\"''\");$content=Get-Content '%logFile%' -Encoding UTF8;$content|Where-Object{$_ -ne $line}|Set-Content '%logFile%' -Encoding UTF8"
+powershell -NoProfile -Command "$line='%lineToDelete%'.Replace(\"'\",\"''\");$content=Get-Content '!logFile!' -Encoding UTF8;$content|Where-Object{$_ -ne $line}|Set-Content '!logFile!' -Encoding UTF8"
 echo !GREEN!Registro apagado.!RESET!
 pause>nul
 goto history
@@ -434,7 +438,7 @@ if "!mo!"=="0" goto history
 goto historyMoreOptions
 
 :hist_clear
-if exist "%logFile%" del "%logFile%"
+if exist "!logFile!" del "!logFile!"
 echo !YELLOW!Histórico apagado.!RESET!
 pause>nul
 goto history
@@ -500,7 +504,7 @@ call :saveConfig
 goto initMenu
 
 :readConfig
-for /f "usebackq tokens=1,2 delims==" %%a in ("%configFile%") do (
+for /f "usebackq tokens=1,2 delims==" %%a in ("!configFile!") do (
     if "%%a"=="downloadDir" set downloadDir=%%b
     if "%%a"=="fileType" set fileType=%%b
     if "%%a"=="downloadPlaylist" set downloadPlaylist=%%b
@@ -517,5 +521,5 @@ goto :eof
     echo downloadPlaylist=!downloadPlaylist!
     echo historyEnabled=!historyEnabled!
     echo limitHistory=!limitHistory!
-) > "%configFile%"
+) > "!configFile!"
 goto :eof
