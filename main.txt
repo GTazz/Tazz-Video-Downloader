@@ -34,6 +34,7 @@ set "YELLOW=%ESC%[93m"
 set "GRAY=%ESC%[90m"
 set "RED=%ESC%[91m"
 set "RESET=%ESC%[0m"
+set "separator= |TVD> "
 
 :initMenu
 cls
@@ -55,6 +56,7 @@ if "!downloadPlaylist!"=="1" (
 )
 echo.
 echo !BLUE![00]!RESET! Acessar histórico
+echo !BLUE![0]!RESET! Sair
 echo !BLUE!--------------------!RESET!
 echo.
 echo !RED!^^!ATENÇÃO^^!:!RESET! Ao ativar download de playlist no YouTube, qualquer link de vídeo com playlist (PÚBLICA) baixará a playlist inteira em vez do vídeo individual.
@@ -69,7 +71,7 @@ if "!initMenuInput!"=="1" goto mudarLocal
 if "!initMenuInput!"=="2" goto mudarTipo
 if "!initMenuInput!"=="3" goto mudarPlaylist
 if "!initMenuInput!"=="00" goto history
-if "!initMenuInput!"=="0" goto initMenu
+if "!initMenuInput!"=="0" goto :eof
 
 set links=!initMenuInput!
 
@@ -154,7 +156,7 @@ if errorlevel 1 (
     echo !BLUE![!counter!]!RESET! !RED!Erro ao baixar!RESET!
     if "!historyEnabled!"=="1" (
         for /f "delims=" %%i in ('powershell -NoProfile -Command "Get-Date -Format \"dd/MM/yyyy HH:mm:ss\""') do set "timestamp=%%i"
-        echo !timestamp! - ERRO - !fileType! - Nenhum - !url! - !downloadDir!>>"%logFile%"
+        echo !timestamp!!separator!ERRO!separator!!fileType!!separator!Nenhum!separator!!url!!separator!!downloadDir!>>"!logFile!"
     )
     echo.
     echo !BLUE!Deseja tentar novamente?!RESET!
@@ -181,14 +183,8 @@ if errorlevel 1 (
         for /f "delims=" %%i in ('powershell -NoProfile -Command "Get-Date -Format \"dd/MM/yyyy HH:mm:ss\""') do set "timestamp=%%i"
         
         for /f "delims=" %%j in ('powershell -NoProfile -Command "$f=Get-ChildItem '%downloadDir%' -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1; if($f){$f.Name} else {Write-Host 'Nenhum'}"') do set "fileName=%%j"
-        
-        set "fileNameNew=!fileName:-=_!"
-        if exist "!downloadDir!\!fileName!" (
-            if not "!fileName!"=="!fileNameNew!" (
-                ren "!downloadDir!\!fileName!" "!fileNameNew!"
-            )
-        )
-        echo !timestamp! - SUCESSO - !fileType! - !fileNameNew! - !url! - !downloadDir!>>"%logFile%"
+
+        echo !timestamp!!separator!SUCESSO!separator!!fileType!!separator!!fileName!!separator!!url!!separator!!downloadDir!>>"!logFile!"
     )
 )
 rem if exist "%TEMP%\files_before.txt" del "%TEMP%\files_before.txt"
@@ -228,6 +224,8 @@ echo !BLUE!===========================!RESET!
 echo.
 echo !YELLOW!Nenhum registro no histórico.!RESET!
 echo.
+echo !BLUE!---------------------------!RESET!
+echo.
 echo !BLUE![00]!RESET! Mais opções
 echo !BLUE![0]!RESET! Voltar
 echo.
@@ -249,6 +247,8 @@ for /f "usebackq tokens=1* delims=@" %%a in ("%TEMP%\tazz_history.tmp") do (
     if "%%b" neq "" call :renderHistLine
 )
 echo.
+echo !BLUE!---------------------------!RESET!
+echo.
 echo !BLUE![00]!RESET! Mais opções
 echo !BLUE![0]!RESET! Voltar
 echo.
@@ -261,7 +261,7 @@ for /f "usebackq tokens=1* delims=@" %%a in ("%TEMP%\tazz_history.tmp") do (
     if "%%a"=="!sel!" set "chosen=%%b"
 )
 if "!chosen!"=="" goto history
-set "chosenMod=!chosen: - =|!"
+set "chosenMod=!chosen:%separator%=|!"
 for /f "tokens=1-6 delims=|" %%a in ("!chosenMod!") do (
     set "ch_dt=%%a"
     set "ch_status=%%b"
@@ -318,7 +318,7 @@ if "!actInput!"=="0" goto history
 goto showAactInputonScreen
 
 :renderHistLine
-set "lineMod=!line: - =|!"
+set "lineMod=!line:%separator%=|!"
 for /f "tokens=1-6 delims=|" %%a in ("!lineMod!") do (
     set "dt=%%a"
     set "st=%%b"
